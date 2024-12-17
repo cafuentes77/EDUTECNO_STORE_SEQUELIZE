@@ -1,3 +1,4 @@
+import { where } from "sequelize";
 import { Usuario }  from "../models/Usuario.model.js"
 
 
@@ -65,6 +66,40 @@ export const getUsersByFilters = async(req, res) => {
             message: 'Usuarios encontrados con exito',
             status: 200,
             data: users,
+        });
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+
+export const getUserById = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await Usuario.findByPk(id);
+
+        res.status (200).json({
+            message: 'Usuarios encontrado con exito',
+            status: 200,
+            data: user,
+        });
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+export const getActiveUserById = async(req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await Usuario.findOne(id);
+        where : { active: true }
+
+        res.status (200).json({
+            message: 'Usuarios encontrado con exito',
+            status: 200,
+            data: user,
         });
     } catch (error) {
         console.error(error)
