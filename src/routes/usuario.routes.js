@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { createUser, getAllActiveUsers, getAllUsers, getUsersByFilters, getUserById, getActiveUserById } from "../controllers/usuario.controller.js";
+import { 
+    createUser, 
+    getAllActiveUsers, 
+    getAllUsers, 
+    getUsersByFilters, 
+    getUserById, 
+    getActiveUserById, 
+    updateUser 
+} from "../controllers/usuario.controller.js";
 
 
 
@@ -9,6 +17,7 @@ router.post ('/usuario', createUser)
 router.get ('/usuario', getAllActiveUsers)
 router.get ('/usuario/filter', getUsersByFilters)
 router.get ('/admin/usuario/:id', getActiveUserById)
+router.put ('/admin/usuario/:id', updateUser)
 
 router.get ('/admin/usuario', getAllUsers)
 router.get ('/admin/usuario/:id', getUserById)
