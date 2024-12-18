@@ -1,4 +1,4 @@
-import { ValidationError } from "../errors/TypeError.js";
+import { NotFoundError, ValidationError } from "../errors/TypeError.js";
 import { Usuario }  from "../models/Usuario.model.js"
 import { validateExistData } from "../utils/validations/Validate.js";
 
@@ -6,8 +6,8 @@ import { validateExistData } from "../utils/validations/Validate.js";
 export const createUser = async(req, res, next) => {
     try {
 
-        await validateExistData(Usuario, req.body,'email');
-        await validateExistData(Usuario, req.body,'telefono');
+        await validateExistData(Usuario, req.body,'email', 'telefono');
+
 
         const user = await Usuario.create(req.body);
         
@@ -124,7 +124,7 @@ export const updateUser = async(req, res, next) => {
             }
         }*/
 
-            await validateExistData(Usuario, updateData, id);
+            await validateExistData(Usuario, updateData, ["email"], id);
 
         const [updateRows, [updateUser]] = await Usuario.update(updateData, {
             where: { id, active: true },
@@ -142,5 +142,47 @@ export const updateUser = async(req, res, next) => {
         });
     } catch (error) {
         next(error)
+    }
+}
+
+export const deleteUser = async(req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await Usuario.findByPk(id);
+
+        if(!user) {
+            throw new NotFoundError ('No se encontro el usuario que deseas eliminar');
+        }
+        user.active = false;
+        await user.save();
+        await user.destroy();
+
+        res.status (200).json({
+            message: 'Usuario eliminado con exito',
+            status: 200,
+            data: user,
+        });
+    } catch (error) {
+        next (error)
+    }
+}
+
+export const restoreUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const usuario = await Usuario.findByPk(id, {paranoid: false});
+
+        if(!usuario) throw new NotFoundError ('No se encontro el usuario que deseas restaurar');
+        if(usuario.deleteAt === null) throw new ValidationError ('El usuario no ha sido eliminado');
+
+        await usuario.restore();
+
+        res.status (200).json({
+            message: 'Usuario restaurado con exito',
+            status: 200,
+        });
+    } catch (error) {
+        next (error)
     }
 }

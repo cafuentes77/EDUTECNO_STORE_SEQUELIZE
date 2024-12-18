@@ -6,7 +6,9 @@ import {
     getUsersByFilters, 
     getUserById, 
     getActiveUserById, 
-    updateUser 
+    updateUser, 
+    deleteUser,
+    restoreUser
 } from "../controllers/usuario.controller.js";
 
 
@@ -18,6 +20,8 @@ router.get ('/usuario', getAllActiveUsers)
 router.get ('/usuario/filter', getUsersByFilters)
 router.get ('/admin/usuario/:id', getActiveUserById)
 router.put ('/admin/usuario/:id', updateUser)
+router.delete ('/usuario/:id', deleteUser)
+router.patch ('/usuario/:id', restoreUser)
 
 router.get ('/admin/usuario', getAllUsers)
 router.get ('/admin/usuario/:id', getUserById)
