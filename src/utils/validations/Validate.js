@@ -1,12 +1,30 @@
 import { Op } from 'sequelize';
-import { ValidationError } from "../../errors/TypeError.js";
+import { NotFoundError, ValidationError } from "../../errors/TypeError.js";
 
 export const isArrayValidate = (data) => {
     if (!Array.isArray(data))
-      throw new ValidationError(
-        "La data ingresada no es un arreglo"
-      );
+        throw new ValidationError(
+            "La data ingresada no es un arreglo"
+        );
 }
+
+export const isEmptyData = (data) => {
+    if (!data || data.length === 0) {
+        throw new ValidationError(
+            "La data ingresada esta vacia"
+        );
+    }
+}
+
+export const isEmptyResponseData = (data) => {
+    if (!data || data.length === 0) {
+        throw new NotFoundError(
+            "La data solicitada no fue encontrada"
+        );
+    }
+}
+
+
 /**
  * Valida que el regsitro que se esta evaluando no exista previamente para un campo dado que se espera que sea único. En caso de existir un valor dúplicado en un campo único, arrojara un error de validación
  * @param {Model} Modelo - Modelo constructor de los datos que se comúnica con la DB
@@ -23,23 +41,23 @@ export const validateExistData = async (Modelo, data, fields, excluidID = null) 
 
         if (data[field]) {
 
-            const whereClause = {[field]: data[field]};
+            const whereClause = { [field]: data[field] };
 
             //esto verifica si se debe excluir el registro que se esta evaluando (util update)
             if (excluidID) {
                 whereClause.id = { [Op.ne]: excluidID }; //Op.ne => operador (sequeize) Not Equal(ne)
             }
 
-            const existData = await Modelo.findOne({ where: whereClause  });
+            const existData = await Modelo.findOne({ where: whereClause });
             if (existData) {
                 throw new ValidationError(`El campo ${field} ya está en uso en por otro registro en ${Modelo}`);
             }
         }
-        }
+    }
 
-        if(duplicatedFields.length > 0) {
-            const fieldsString = duplicatedFields.map(field => `"${field}"`).join(', ');
-            throw new ValidationError(`Los campos ${fieldsString} ya están en uso en por otro registro en "${Modelo.name}"`);
-        }
+    if (duplicatedFields.length > 0) {
+        const fieldsString = duplicatedFields.map(field => `"${field}"`).join(', ');
+        throw new ValidationError(`Los campos ${fieldsString} ya están en uso en por otro registro en "${Modelo.name}"`);
+    }
 
-    } 
+} 

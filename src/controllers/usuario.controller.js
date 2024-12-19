@@ -1,49 +1,55 @@
 import { NotFoundError, ValidationError } from "../errors/TypeError.js";
-import { Usuario }  from "../models/Usuario.model.js"
-import { validateExistData } from "../utils/validations/Validate.js";
+import { Usuario } from "../models/Usuario.model.js"
+import { isEmptyResponseData, validateExistData } from "../utils/validations/Validate.js";
 
 
-export const createUser = async(req, res, next) => {
+export const createUser = async (req, res, next) => {
     try {
 
-        await validateExistData(Usuario, req.body,'email', 'telefono');
-
+        await validateExistData(Usuario, req.body, ['email', 'telefono']);
 
         const user = await Usuario.create(req.body);
-        
+
         console.log(user)
         res.status(201).json({
             message: 'Usuario creado con éxito',
             status: 201,
-            data: user,
-        });
+            data: user
+        })
     } catch (error) {
         next(error)
     }
 }
 
-export const getAllUsers = async(req, res, next) => {
+export const getAllUsersIncludeDeleted = async (req, res, next) => {
     try {
-        const users = await Usuario.findAll();
+        const users = await Usuario.findAll({ paranoid: false });
 
-        res.status (200).json({
-            message: 'Usuarios encontrados con exito',
+        isEmptyResponseData(users)
+
+        res.status(200).json({
+            message: 'Usuarios encontrados con éxito',
             status: 200,
-            data: users,
-        });
+            data: users
+        })
     } catch (error) {
         next(error)
     }
 }
 
-export const getAllActiveUsers  = async(req, res, next) => {
+
+export const getAllActiveUsers = async (req, res, next) => {
     try {
         const users = await Usuario.findAll({
-            where: { active: true }
+            attributes: {
+                exclude: ['createdAt', 'updatedAt', 'deletedAt']
+            }
         });
 
-        res.status (200).json({
-            message: 'Usuarios activos encontrados con exito',
+        isEmptyResponseData(users);
+
+        res.status(200).json({
+            message: "Usuarios encontrados con éxito",
             status: 200,
             data: users,
         });
@@ -52,137 +58,167 @@ export const getAllActiveUsers  = async(req, res, next) => {
     }
 }
 
-export const getUsersByFilters = async(req, res, next) => {
+export const getUsersByFilters = async (req, res, next) => {
     try {
-        const filters = req.query; // esto devuelve un objeto con los filtros
-        const whereClause = {};
+        const filters = req.query; //Esto devuelve un objeto con los filtros
+        const whereCluase = {};
 
         for (const key in filters) {
             if (filters.hasOwnProperty(key)) {
-                whereClause[key] = filters[key];
+                whereCluase[key] = filters[key]
             }
         }
 
         const users = await Usuario.findAll({
-            where: { ...whereClause, active: true }
+            where: { ...whereCluase, },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] }
+
         })
 
-        res.status (200).json({
-            message: 'Usuarios encontrados con exito',
+        isEmptyResponseData(users);
+
+        res.status(200).json({
+            message: "Usuarios encontrados con éxito",
             status: 200,
             data: users,
         });
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
-
-export const getUserById = async(req, res, next) => {
+export const getUserByIdIncludeDeleted = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const user = await Usuario.findByPk(id);
+        const user = await Usuario.findByPk(id, { paranoid: false });
 
-        res.status (200).json({
-            message: 'Usuarios encontrado con exito',
+        isEmptyResponseData(user);
+
+        res.status(200).json({
+            message: "Usuario encontrado con éxito",
             status: 200,
             data: user,
         });
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
-export const getActiveUserById = async(req, res, next) => {
+
+export const getActiveUserById = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         const user = await Usuario.findOne({
-            where: { id, active: true}
-        });
+            where: { id },
+            attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] }
+        })
 
-        res.status (200).json({
-            message: 'Usuarios encontrado con exito',
+        isEmptyResponseData(user);
+
+        res.status(200).json({
+            message: "Usuario encontrado con éxito",
             status: 200,
             data: user,
         });
     } catch (error) {
-        next(error)
+        next(error);
     }
 }
 
-export const updateUser = async(req, res, next) => {
+export const updateUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
 
-       /*if (updateData.email) {
-            const existUser = await Usuario.findOne({ where: { email: updateData.email } });
-            if (existUser && existUser.id !== id) {
-                throw new ValidationError('El correo electrónico ya esta en uso');
-            }
-        }*/
-
-            await validateExistData(Usuario, updateData, ["email"], id);
+        await validateExistData(
+            Usuario,
+            updateData,
+            ["email"],
+            id
+        );
 
         const [updateRows, [updateUser]] = await Usuario.update(updateData, {
-            where: { id, active: true },
+            where: { id },
             returning: true,
+            attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] }
         });
 
         if (updateRows === 0) {
-            console.error(`No se encontro el usuario con el ID: ${id}`);
+            throw new NotFoundError(`No se encontro al usuario con el ID: ${id}`)
         }
 
-        res.status (200).json({
-            message: 'Usuario actualizado con exito',
+        res.status(200).json({
+            message: "Usuario actualizado con éxito",
             status: 200,
-            data: updateUser,
+            data: updateUser
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const user = await Usuario.findByPk(id);
+
+        isEmptyResponseData(user);
+
+        await user.destroy();
+
+        res.status(200).json({
+            message: 'Usuario Eliminado con éxito',
+            status: 200,
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+export const restoreUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const usuario = await Usuario.findByPk(id, { paranoid: false })
+
+        isEmptyResponseData(user);
+        if (usuario.deletedAt === null) throw new ValidationError('El usuario no ha sido eliminado');
+
+        await usuario.restore();
+
+        res.status(200).json({
+            message: "Usuario Restaurado con éxito",
+            status: 200,
+            data: usuario
         });
     } catch (error) {
         next(error)
     }
 }
 
-export const deleteUser = async(req, res, next) => {
+
+export const physicDeleteUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params
 
         const user = await Usuario.findByPk(id);
 
-        if(!user) {
-            throw new NotFoundError ('No se encontro el usuario que deseas eliminar');
+        if (!user) {
+            throw new NotFoundError('No encontramos al usuario que deseas eliminar');
         }
-        user.active = false;
-        await user.save();
-        await user.destroy();
 
-        res.status (200).json({
-            message: 'Usuario eliminado con exito',
+        await user.destroy({ force: true });
+
+        res.status(200).json({
+            message: 'Usuario Eliminado con éxito',
             status: 200,
-            data: user,
-        });
+        })
     } catch (error) {
-        next (error)
-    }
-}
-
-export const restoreUser = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const usuario = await Usuario.findByPk(id, {paranoid: false});
-
-        if(!usuario) throw new NotFoundError ('No se encontro el usuario que deseas restaurar');
-        if(usuario.deleteAt === null) throw new ValidationError ('El usuario no ha sido eliminado');
-
-        await usuario.restore();
-
-        res.status (200).json({
-            message: 'Usuario restaurado con exito',
-            status: 200,
-        });
-    } catch (error) {
-        next (error)
+        next(error)
     }
 }
