@@ -1,5 +1,5 @@
 import { Model, DataTypes } from 'sequelize'
-import { dbConfig } from '../config/db.config.js'
+
 
 
 export class Producto extends Model{};
@@ -43,6 +43,7 @@ export const initProducto = (dbConfig) => {
     {
         sequelize: dbConfig,
         modelName: 'Producto',
+        tableName: 'producto',
         timestamps: true,
         paranoid: true
     }

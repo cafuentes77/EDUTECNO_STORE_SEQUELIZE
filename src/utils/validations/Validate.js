@@ -8,10 +8,15 @@ export const isArrayValidate = (data) => {
         );
 }
 
+export const notFoundDataRequest = async (Model, pk) => {
+    const data = await Model.findByPk(pk);
+    if (!data) throw new NotFoundError(`Datos con la primary key ${pk} no encontrado en ${Model.name}`); 
+}
+
 export const isEmptyData = (data) => {
     if (!data || data.length === 0) {
         throw new ValidationError(
-            "La data ingresada esta vacia"
+            `La data ${field}ingresada esta vacia`
         );
     }
 }
@@ -24,6 +29,17 @@ export const isEmptyResponseData = (data) => {
     }
 }
 
+export const isValidDate = (fecha) => {
+    if(!fecha) return new Date.now();
+    const parseDate = new Date(fecha);
+    
+    if (isNaN(parseDate.getTime())) {
+        throw new ValidationError(
+            "La fecha enviada debe tener el formato de YYYY-MM-DD"
+        );
+    }
+    return parseDate;
+}
 
 /**
  * Valida que el regsitro que se esta evaluando no exista previamente para un campo dado que se espera que sea único. En caso de existir un valor dúplicado en un campo único, arrojara un error de validación
