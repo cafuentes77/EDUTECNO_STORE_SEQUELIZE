@@ -1,32 +1,24 @@
-import { CustomError } from "./CustomError.js";
-import { InternalServerError } from "../errors/TypesError.js";
+import { CustomError } from "../errors/CustomError.js";
+import { InternalServerError } from "../errors/TypeError.js";
 
-export class ValidationError extends CustomError {
-    constructor(message, details) {
-        super(message || 'Error de validación', 400, details);
+export const errorHandler = (err, req, res, next) => {
+    if (!(err instanceof CustomError)) {
+        err = new InternalServerError(
+            err.message || "Error Inesperado",
+            "Ups! Tenemos un error imprevisto, por favor contacta con nuestro equipo de soporte"
+        );
     }
-}
 
-export class DataBaseError extends CustomError {
-    constructor(message, details) {
-        super(message || 'Error en la comunicacion con la Base de datos', 500, details);
-    }
-}
+    const errorResponse = {
+        status: "Error",
+        message: err.message,
+        code: err.statusCode,
+        details: err.details,
+    };
 
-export class NotFoundError extends CustomError {
-    constructor(message, details, entity) {
-        super(message || `${entity} No encontrado`, 404, details);
-    }
-}
+    console.error(
+        `ERROR: ${err.message} --- Details: ${err.details} ---- status: ${err.statusCode}`
+    );
 
-export class MailError extends CustomError {
-    constructor(message, details) {
-        super(message || 'Error al enviar el email', 500, details);
-    }
-}
-
-export class InternalServerError extends CustomError {
-    constructor(message, details) {
-        super(message || 'Error interno del servidor', 500, details);
-    }
-}
+    res.status(err.statusCode).json(errorResponse);
+};
