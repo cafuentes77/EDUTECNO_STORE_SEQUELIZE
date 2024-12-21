@@ -9,25 +9,23 @@ import {
     deleteUser,
     restoreUser,
     getUserByIdIncludeDeleted,
-    physicDeleteUser
-} from "../controllers/usuario.controller.js";
+    physicDeleteUser } 
+    from "../controllers/usuario.controller.js";
 
 
 
-const router = Router()
+    const router = Router()
 
-router.post ('/usuario', createUser)
-router.get ('/usuario', getAllActiveUsers)
-router.get ('/usuario/filter', getUsersByFilters)
-router.get ('/usuario/:id', getActiveUserById)
-router.put ('/usuario/:id', updateUser)
-router.delete ('/usuario/:id', deleteUser)
-router.patch ('/usuario/:id', restoreUser)
-
-router.get ('/admin/usuario', getAllUsersIncludeDeleted)
-router.get ('/admin/usuario/:id', getUserByIdIncludeDeleted)
-router.delete ('/admin/usuario/:id', physicDeleteUser)
-
-
-
-export default router
+    router.post('/', createUser);
+    router.get('/', getAllActiveUsers);
+    router.get('/filter', getUsersByFilters);
+    router.get('/:id', getActiveUserById);
+    router.put('/:id', updateUser)
+    router.delete('/:id', deleteUser);
+    router.patch('/:id', restoreUser)
+    
+    router.get('/admin/', getAllUsersIncludeDeleted);
+    router.get('/admin/:id', getUserByIdIncludeDeleted)
+    router.delete('/admin/:id',  physicDeleteUser)
+    
+    export default router;

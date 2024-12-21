@@ -1,4 +1,4 @@
-/** import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
 export class VentasProductos extends Model {}
 
@@ -29,4 +29,4 @@ export const initVentasProductos = (dbConfig) => {
         tableName: 'ventas_productos',
         timestamps: true
     }
-)};*/
+)};

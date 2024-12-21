@@ -12,13 +12,13 @@ export const initProducto = (dbConfig) => {
             primaryKey: true
         },
         nombre: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING,
             allowNull: false,
             validate: {
                 notEmpty: { msg: "El nombre del producto no puede ser un campo vacío" },
                 len: { 
                     args: [2, 100], 
-                    msg: "El nombre del producto debe tener entre 3 y 100 caracteres" }
+                    msg: "El nombre del producto debe tener entre 2 y 100 caracteres" }
             }
         },
         descripcion: {
