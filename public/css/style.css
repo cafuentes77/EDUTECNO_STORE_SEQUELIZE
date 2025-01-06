@@ -1,0 +1,32 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+}
+
+.header-container {
+    height: 50rem;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background-image: url('../image/R.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.title {
+    color: #eee;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.header-container p {
+    color: #eee;
+    font-size: 1rem;
+    
+}
