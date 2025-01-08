@@ -1,4 +1,10 @@
-<div class="header-container">
-<h1 class="title">Hola a todos, este es mi servidor !!!!</h1>
-<p>Estamos trabajando con motores de plantillas de HBS directamente en un servidor monolitico</p>
-</div>
+
+{{> header 
+    title="Bienvenidos a nuestra tienda"
+    subtitle="Esperamos que encuentres lo que buscas"
+}}
+
+{{> infoSection
+    title="Esta es una segunda sección"
+    paragraph="Tenemos una gran variedad de productos para ti"
+}}

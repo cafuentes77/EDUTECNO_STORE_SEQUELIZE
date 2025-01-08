@@ -1,0 +1,19 @@
+{{> header
+    title="productos de primera"
+}}
+
+<section class="product-list">
+    <h2>Listado de Nuestros de Productos</h2>
+
+    <div class="cards-container">
+        {{#each products}}
+            {{> card
+                id=this.id
+                title=this.nombre
+                descripcion=this.descripcion
+                price=this.precio
+                stock=this.stock
+            }}
+        {{/each}}
+    </div>
+</section>
